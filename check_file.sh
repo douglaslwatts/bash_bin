@@ -9,6 +9,8 @@
 #              messages as well as exit codes to inform the user of what is not acceptable about
 #              the file if the file is not acceptable for some reason.
 #
+# Note: This is mostly useful for calling from another script which needs to check file permissions
+#
 # Flags: optionally supply -w after all args to check for write permissions as well
 #
 # Exit Codes: 1 => incorrect usage of this script
