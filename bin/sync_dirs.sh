@@ -8,6 +8,9 @@
 #              the contents differ, then there is an option to sync them keeping one directory or
 #              the other's contents. If they are identical, then this is reported.
 #
+#              Note: the compare_directories.sh script should be placed in one's ~/bin directory for
+#                    this script to work.
+#
 # Exit Status: 0 --> Success
 #              1 --> usage error
 #              2 --> Required script "compare_directories" has incorrect permissions or is absent
@@ -25,7 +28,7 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-readonly DIR_CHECKER="compare_directories.sh"
+readonly DIR_CHECKER="/home/${USER}/bin/compare_directories.sh"
 
 if [ ! -f "$DIR_CHECKER" ] || [ ! -x "$DIR_CHECKER" ] || [ ! -r "$DIR_CHECKER" ]; then
     echo "Error: $DIR_CHECKER is a script which is required for $0 to function correctly." >&2
