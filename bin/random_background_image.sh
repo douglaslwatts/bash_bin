@@ -5,6 +5,16 @@
 # Date: 10/16/2022
 # File: random_background_image.sh
 #
+# Choose a random image from a given background images directory upon each i3 session. For use when
+# using i3wm as a DE.
+#
+# NOTE: The script assumes you have a feh command in i3 config file as below:
+#
+#       exec --no-startup-id feh --bg-scale /path/to/image_file
+#       
+#       If that is not the case make it so or change the value of the variable FEH_COMMAND
+#       in this script
+#
 # Example:
 #
 #   Place below in .bash_profile or .profile, whichever is relavent to you
@@ -29,7 +39,7 @@ unset -v i3_config_file
 
 # parse the command line args via getopts
 
-while getopts "d:h:m:s:f:" opt; do
+while getopts "d:f:" opt; do
     case $opt in
         d) background_images_dir="${HOME}/${OPTARG}";;
         f) i3_config_file="${HOME}/${OPTARG}";;
@@ -42,7 +52,7 @@ done
 
 shift "$(( OPTIND - 1 ))"
 
-# Make sure that a image directory arg was provided
+# Make sure that an image directory arg was provided
 
 if [ -z "$background_images_dir" ]; then
     echo -e "Missing required Argument for background images directory!\n" >&2
@@ -59,7 +69,6 @@ else
     readonly I3_CONFIG_FILE="${HOME}/${i3_config_file}"
 fi
 
-#readonly BACKGROUNDS_DIR="${HOME}/Pictures/background_images"
 readonly BACKGROUND_IMAGES_ARRAY=(${BACKGROUNDS_DIR}/*)
 readonly NUM_IMAGES="${#BACKGROUND_IMAGES_ARRAY[@]}"
 readonly RANDOM_INDEX=$(( $RANDOM % $NUM_IMAGES ))
@@ -73,7 +82,6 @@ while [ -d "${FILE_NAME}" ]; do
 done
 
 readonly FEH_COMMAND="exec --no-startup-id feh --bg-scale"
-#readonly I3_CONFIG_FILE="${HOME}/.config/i3/config"
 
 sed -i "s:\(${FEH_COMMAND}\) .*:\1 ${FILE_NAME}:" $I3_CONFIG_FILE
 
