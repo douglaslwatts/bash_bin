@@ -10,8 +10,9 @@
 # in the form:
 #               exec --no-startup-id feh --bg-scale /absolute/path/to/image_file
 #
-# If that is not the case either make it so or edit the needed grep | cut command in this script to
-# match the feh command that is in the i3 config file
+# and that the image specified in that command exists. If that is not the case either make it so or 
+# edit the needed grep | cut command in this script to match the feh command that is in the i3 
+# config file
 #
 # NOTE: Most distros come with the commands used here, but make sure you have pgrep, feh, and 
 #       ImageMagick for the convert command.
@@ -27,11 +28,11 @@
 #       1 is under 500Kib, 1 is just under 1MiB, 5 are around 1.5Mib, 1 is 2.2MiB, and 1 is 4.1MiB
 #       This has made my background_transitions directory 138MiB. Not too crazy, but I imagine it may
 #       not be a great idea to use this on one's entire Pictures directory. Especially if there are
-#       thousands of Pictures in it. At this time, only pictures in the base background images
-#       directory will be used. I will add the functionality to pick random images from 
-#       subdirectories in the future, naturally not getting images from the background_transitions/
-#       directory as that would cause issues. I may move the background_transitions/ directory to be
-#       a hidden directory in $HOME.
+#       thousands of Pictures in it. A random file from within the backgrounds directory will be 
+#       chosen recursively and if an empty directory is encountered, the default will be the image
+#       file which was specified in the i3 config file feh command originally. Background transition
+#       files are stored in $HOME/.background_transitions/, which will be created if it does not
+#       exist.
 #
 # Required Args and the flag to provide them to:
 #
@@ -95,12 +96,11 @@ usage() {
 # Arg: $4 --> The directory to place the transition files within
 # Arg: $5 --> The number of transition files to create.
 create_transition_files() {
-    file_name="$1"
-    file_basename="$2"
-    file_extension="$3"
-    file_dir="$4"
-    num_transitions=$5
-    # num_blurred=$(( num_transitions / 3 ))
+    local file_name="$1"
+    local file_basename="$2"
+    local file_extension="$3"
+    local file_dir="$4"
+    local num_transitions=$5
 
     i=0;
 
@@ -215,7 +215,7 @@ fi
 
 # create a subdirectory for transition files if it does not exist
 
-readonly TRANSITIONS_DIR="${BACKGROUNDS_DIR}/background_transitions"
+readonly TRANSITIONS_DIR="${HOME}/.background_transitions"
 
 if [ ! -d "${TRANSITIONS_DIR}" ]; then
     mkdir "${TRANSITIONS_DIR}"
@@ -226,7 +226,8 @@ fi
 # command in i3 config file should be as below, or change below grep | cut to match it
 # exec --no-startup-id feh --bg-scale /absolute/path/to/image_file
 
-old_file_name="$(grep 'id feh' $I3_CONFIG_FILE | cut -d' ' -f5)"
+readonly DEFAULT_FILE_NAME="$(grep 'id feh' $I3_CONFIG_FILE | cut -d' ' -f5)"
+old_file_name="$DEFAULT_FILE_NAME"
 
 # a variable to hold the previouse index in the file image array, as not to choose the same
 # picture that is already set when transitioning
@@ -236,6 +237,37 @@ old_index=0
 # set the number of transition files
 
 readonly NUM_TRANSITIONS=95
+
+# Recursively get a random file name from within a directory tree.
+#
+# Arg: $1 should be the name of the directory from which to get a file name
+# Arg: $2 should be the index within that directory to start with, if the name at that index is
+#      a file then return it (i.e., base case met), if it is a directory start recursion
+# Arg: $3 should be a default file to use in case of encountering an empty directory during
+#      recursion, i.e. a fall back to ensure the base case is eventually met
+get_random_image() {
+    local backgrounds_dir="$1"
+    local backgrounds_array=(${backgrounds_dir}/*)
+    local index=$2
+    local default_image="$3"
+
+    local file_or_dir="${backgrounds_array[${index}]}"
+
+    if [ ! -f "$file_or_dir" ] && [ ! -d "$file_or_dir" ]; then
+        file_or_dir="$default_image"
+    fi
+
+    if [ -d "$file_or_dir" ]; then
+        backgrounds_dir="$file_or_dir"
+        backgrounds_array=(${backgrounds_dir}/*)
+        local array_size="${#backgrounds_array[@]}"
+        local random_array_index=$(( $RANDOM % $array_size ))
+
+        file_or_dir="$(get_random_image $backgrounds_dir $random_array_index $default_image)"
+    fi
+
+    echo "$file_or_dir"
+}
 
 while [ true ]; do
     sleep $transition_wait_period
@@ -247,9 +279,10 @@ while [ true ]; do
     num_images="${#background_images_array[@]}"
     random_index=$(( $RANDOM % $num_images ))
 
-    # make sure to get an index that was not chosen last time around
+    # make sure to get an index that was not chosen last time around, but if only 1 item in
+    # background images directory, then choose it anyway
 
-    while [ $random_index -eq $old_index ]; do
+    while [ $random_index -eq $old_index ] && [ $num_images -gt 1 ]; do
         random_index=$(( $RANDOM % $num_images ))
     done
 
@@ -260,20 +293,7 @@ while [ true ]; do
     # get the absolute path to the new background image to transition to, from the array
     # get the basename, file extension, and transition file directory for new background image
 
-    new_file_name="${background_images_array[${random_index}]}"
-
-    # If we get the background_transitions/ directory, throw it away and grab an image file instead
-
-    while [ -d "$new_file_name" ]; do
-        random_index=$(( $RANDOM % $num_images ))
-
-        while [ $random_index -eq $old_index ]; do
-            random_index=$(( $RANDOM % $num_images ))
-        done
-
-        old_index=$random_index
-        new_file_name="${background_images_array[${random_index}]}"
-    done
+    new_file_name="$(get_random_image $BACKGROUNDS_DIR $random_index $DEFAULT_FILE_NAME)"
 
     # get the basename, file extension, and transition file directory for current background image
 
