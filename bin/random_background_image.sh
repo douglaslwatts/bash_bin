@@ -12,8 +12,8 @@
 #
 #       exec --no-startup-id feh --bg-scale /path/to/image_file
 #       
-#       If that is not the case make it so or change the value of the variable FEH_COMMAND
-#       in this script
+#       and that the file specified in that command exists. If that is not the case make it so or 
+#       change the value of the variable FEH_COMMAND in this script
 #
 # Example:
 #
@@ -32,6 +32,37 @@ usage() {
     echo -e "\tIf no i3 config file is given, ${HOME}/.config/i3/config is assumed\n" >&2
 
     exit 1
+}
+
+# Recursively get a random file name from within a directory tree.
+#
+# Arg: $1 should be the name of the directory from which to get a file name
+# Arg: $2 should be the index within that directory to start with, if the name at that index is
+#      a file then return it (i.e., base case met), if it is a directory start recursion
+# Arg: $3 should be a default file to use in case of encountering an empty directory during
+#      recursion, i.e. a fall back to ensure the base case is eventually met
+get_random_image() {
+    local backgrounds_dir="$1"
+    local backgrounds_array=(${backgrounds_dir}/*)
+    local index=$2
+    local default_image="$3"
+
+    local file_or_dir="${backgrounds_array[${index}]}"
+
+    if [ ! -f "$file_or_dir" ] && [ ! -d "$file_or_dir" ]; then
+        file_or_dir="$default_image"
+    fi
+
+    if [ -d "$file_or_dir" ]; then
+        backgrounds_dir="$file_or_dir"
+        backgrounds_array=(${backgrounds_dir}/*)
+        local array_size="${#backgrounds_array[@]}"
+        local random_array_index=$(( $RANDOM % $array_size ))
+
+        file_or_dir="$(get_random_image $backgrounds_dir $random_array_index $default_image)"
+    fi
+
+    echo "$file_or_dir"
 }
 
 unset -v background_images_dir
@@ -72,15 +103,8 @@ fi
 readonly BACKGROUND_IMAGES_ARRAY=(${BACKGROUNDS_DIR}/*)
 readonly NUM_IMAGES="${#BACKGROUND_IMAGES_ARRAY[@]}"
 readonly RANDOM_INDEX=$(( $RANDOM % $NUM_IMAGES ))
-readonly FILE_NAME="${BACKGROUND_IMAGES_ARRAY[${RANDOM_INDEX}]}"
-
-# Make sure we get a file not a subdirectory
-
-while [ -d "${FILE_NAME}" ]; do
-    readonly RANDOM_INDEX=$(( $RANDOM % $NUM_IMAGES ))
-    readonly FILE_NAME="${BACKGROUND_IMAGES_ARRAY[${RANDOM_INDEX}]}"
-done
-
+readonly DEFAULT_FILE_NAME="$(grep 'id feh' $I3_CONFIG_FILE | cut -d' ' -f5)"
+readonly FILE_NAME="$(get_random_image $BACKGROUNDS_DIR $RANDOM_INDEX $DEFAULT_FILE_NAME)"
 readonly FEH_COMMAND="exec --no-startup-id feh --bg-scale"
 
 sed -i "s:\(${FEH_COMMAND}\) .*:\1 ${FILE_NAME}:" $I3_CONFIG_FILE
