@@ -100,9 +100,9 @@ while [ $i -lt $num_deps ]; do
 done
 
 if [ ! -z "${dependencies}" ]; then
-    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d applicationName=${app_name} -d artifactId=${artifact_id} -d groupId=${group_id} -d packageName=${package_name} -d type=maven-project -d dependencies=${deps} -d name=${project_name} -d baseDir=${base_dir}"
+    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d applicationName=${app_name} -d artifactId=${artifact_id} -d groupId=${group_id} -d packageName=${package_name} -d type=${project_type} -d dependencies=${deps} -d name=${project_name} -d baseDir=${base_dir}"
 else
-    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d applicationName=${app_name} -d artifactId=${artifact_id} -d groupId=${group_id} -d packageName=${package_name} -d type=maven-project name=${project_name} -d baseDir=${base_dir}"
+    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d applicationName=${app_name} -d artifactId=${artifact_id} -d groupId=${group_id} -d packageName=${package_name} -d type=${project_type} -d name=${project_name} -d baseDir=${base_dir}"
 fi
 
 readonly TAR_CMD="tar -xzvf -"
