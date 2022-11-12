@@ -52,9 +52,9 @@ while [ $i -lt $num_deps ]; do
 done
 
 if [ ! -z "${dependencies}" ]; then
-    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d dependencies=${deps} -d name=${project_name}"
+    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d type=maven-project -d dependencies=${deps} -d name=${project_name}"
 else
-    readonly CURL_CMD="curl https://start.spring.io/starter.tgz name=${project_name}"
+    readonly CURL_CMD="curl https://start.spring.io/starter.tgz -d type=maven-project name=${project_name}"
 fi
 
 readonly TAR_CMD="tar -xzvf -"
