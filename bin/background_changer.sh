@@ -48,6 +48,12 @@
 #                       -f --> The location of the i3wm config file if not the default location of
 #                       $HOME/.config/i3/config
 #
+#                       -t --> The number of transitions to make between images, default is 65.
+#                              More means more files created, but the actual image transition will
+#                              be less noticable due to a higher level of blackness and blur. If
+#                              a number less than 10 is specified, the default will be 10 and if a
+#                              number greater than 95 is specified, the default will be 95.
+#
 # Place the command in .bash_profile or .profile, whichever you use. Don't forget the '&' at the 
 # end as the script runs a forever loop to do its job. If you do not you will need to switch to a
 # TTY and ctrl-c then add it to the command, which is what I did LOL the first time I ran it :)
@@ -106,11 +112,13 @@ create_transition_files() {
 
     while [ $i -lt $num_transitions ]; do
         (( i++ ))
-        convert -blur 0x${i} "$file_name" "${file_dir}/${file_basename}${i}${file_extension}"
-        sleep .2s
-        convert "${file_dir}/${file_basename}${i}${file_extension}" \
-            -fill black -colorize ${i}% \
-            "${file_dir}/${file_basename}${i}${file_extension}"
+        if [ ! -f "${file_dir}/${file_basename}${i}${file_extension}" ]; then
+            convert -blur 0x${i} "$file_name" "${file_dir}/${file_basename}${i}${file_extension}"
+            sleep .2s
+            convert "${file_dir}/${file_basename}${i}${file_extension}" \
+                -fill black -colorize ${i}% \
+                "${file_dir}/${file_basename}${i}${file_extension}"
+        fi
     done
 }
 
@@ -119,16 +127,18 @@ unset -v hours_between_transitions
 unset -v minutes_between_transitions
 unset -v seconds_between_transitions
 unset -v i3_config_file
+unset -v num_transitions
 
 # parse the command line args via getopts
 
-while getopts "d:h:m:s:f:" opt; do
+while getopts "d:h:m:s:f:t:" opt; do
     case $opt in
         d) background_images_dir="${HOME}/${OPTARG}";;
         h) hours_between_transitions=${OPTARG};;
         m) minutes_between_transitions=${OPTARG};;
         s) seconds_between_transitions=${OPTARG};;
         f) i3_config_file="${HOME}/${OPTARG}";;
+        t) num_transitions=${OPTARG};;
         \?) echo "Invalid option: -${OPTARG}" >&2
             usage ${0};;
         :) echo "Option -${OPTARG} requires an argument!" >&2
@@ -198,6 +208,20 @@ elif [ ! -z "$seconds_between_transitions" ]; then
     fi
 fi
 
+# set the number of transition files
+    
+if [ -z "$num_transitions" ]; then
+    readonly NUM_TRANSITIONS=65
+else
+    if [ $num_transitions -gt 95 ]; then
+        num_transitions=95
+    elif [ $num_transitions -lt 10 ]; then
+        num_transitions=10
+    else
+        readonly NUM_TRANSITIONS=$num_transitions
+    fi
+fi
+
 # Make sure the images directory given actually exists
 
 if [ ! -d "$BACKGROUNDS_DIR" ]; then
@@ -233,10 +257,6 @@ old_file_name="$DEFAULT_FILE_NAME"
 # picture that is already set when transitioning
 
 old_index=0
-
-# set the number of transition files
-
-readonly NUM_TRANSITIONS=95
 
 # Recursively get a random file name from within a directory tree.
 #
@@ -311,14 +331,35 @@ while [ true ]; do
     i=0;
     j=0
 
-    if [ ! -d ${old_file_transitions_dir} ]; then
-        mkdir $old_file_transitions_dir
+    if [ -d ${old_file_transitions_dir} ]; then
+        num_old_transition_files=$(find $old_file_transitions_dir -maxdepth 1 -type f | wc -l)
+    else
+        num_old_transition_files=0
+    fi
+
+
+    if [ $num_old_transition_files -lt $NUM_TRANSITIONS ]; then
+
+        if [ ! -d ${old_file_transitions_dir} ]; then
+            mkdir $old_file_transitions_dir
+        fi
+
         create_transition_files $old_file_name $old_file_basename $old_file_extension \
                                 $old_file_transitions_dir $NUM_TRANSITIONS
     fi
 
-    if [ ! -d ${new_file_transitions_dir} ]; then
-        mkdir $new_file_transitions_dir
+    if [ -d ${new_file_transitions_dir} ]; then
+        num_new_transition_files=$(find $new_file_transitions_dir -maxdepth 1 -type f | wc -l)
+    else
+        num_new_transition_files=0
+    fi
+
+    if [ $num_new_transition_files -lt $NUM_TRANSITIONS ]; then
+
+        if [ ! -d ${new_file_transitions_dir} ]; then
+            mkdir $new_file_transitions_dir
+        fi
+
         create_transition_files $new_file_name $new_file_basename $new_file_extension \
                                 $new_file_transitions_dir $NUM_TRANSITIONS
     fi
