@@ -33,7 +33,7 @@ fi
 cd "$project_dir"
 
 for dir in **; do
-    if [ -d "$fdir" ]; then
+    if [ -d "$dir" ]; then
         cd $dir
         if [ -d "./.git" ] &&
            [ "$(git status | grep -o 'Your branch is up to date with')" == "" ]; then
