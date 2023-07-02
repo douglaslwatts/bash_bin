@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# A quick dirty script to see if any local Git repos are outdated.
+# Check if any local Git repos are outdated or have uncommitted/unstaged changes in a given 
+# directory of Git repos.
 
 usage() {
     echo "Usage: $0 -d <project directory>"
@@ -35,11 +36,31 @@ cd "$project_dir"
 for dir in **; do
     if [ -d "$dir" ]; then
         cd $dir
-        if [ -d "./.git" ] &&
-           [ "$(git status | grep -o 'Your branch is up to date with')" == "" ]; then
-            echo -e "$dir is outdated and needs a pull or has uncomitted changes in branch.\n"
-            status="$(git status)"
-            echo -e "---------------------------------\n$status\n---------------------------------\n\n"
+
+        if [ -d "./.git" ]; then
+           attention_needed=0
+
+           if [ "$(git status | grep -o 'Changes ')" != "" ]; then
+               attention_needed=1
+               echo -e "$dir has uncomitted or unstaged changes in current branch.\n"
+               status="$(git status)"
+               echo -e "--------------------------------------------------------------------------\
+                   \n$status\n\
+--------------------------------------------------------------------------\n\n"
+           fi
+
+           if [ "$(git remote show origin | grep -o 'local out of date')" != "" ]; then
+               attention_needed=1
+               echo -e "$dir branch(es) is/are out of date and need a pull!\n"
+               status="$(git remote show origin | grep 'local out of date')"
+               echo -e "--------------------------------------------------------------------------\
+                   \n$status\n\
+--------------------------------------------------------------------------\n\n"
+           fi
+
+           if [ $attention_needed -eq 0 ]; then
+               echo -e "$dir is up to date and has no uncommitted changes : )\n"
+           fi
         fi
         cd ..
     fi
