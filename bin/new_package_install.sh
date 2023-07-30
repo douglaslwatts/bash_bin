@@ -3,7 +3,7 @@
 # Author: Douglas L. Watts
 # Version: 1.0
 # Date: 07/30/2023
-# File: background_changer.sh
+# File: new_package_install.sh
 #
 # Description:
 #       Installs a package or a new version of a package such as an AppImage file.
