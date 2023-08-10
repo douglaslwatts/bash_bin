@@ -14,8 +14,7 @@ while getopts "d:h" opt; do
         d) project_dir=$OPTARG;;
         h) usage $0
            exit 0;;
-        \?) echo "Invalid option: -${OPTARG}" >&2
-            usage $0
+        \?) usage $0
             exit 1;;
    esac
 done

@@ -78,10 +78,8 @@ while getopts "a:b:d:D:g:hi:n:p:t:" opt; do
         n) project_name=${OPTARG};;
         p) package_name=${OPTARG};;
         t) project_type=${OPTARG};;
-       \?) echo "Invalid option -${OPTARG}" >&2
-           show_error ${0};;
-        :) echo "Option -${OPTARG} requires an argument" >&2
-           show_error ${0};;
+       \?) show_error ${0};;
+        :) show_error ${0};;
     esac
 done
 
