@@ -74,10 +74,8 @@ while getopts "d:f:" opt; do
     case $opt in
         d) background_images_dir="${HOME}/${OPTARG}";;
         f) i3_config_file="${HOME}/${OPTARG}";;
-        \?) echo "Invalid option: -${OPTARG}" >&2
-            usage ${0};;
-        :) echo "Option -${OPTARG} requires an argument!" >&2
-            usage ${0};;
+        \?) usage ${0};;
+        :) usage ${0};;
     esac
 done
 

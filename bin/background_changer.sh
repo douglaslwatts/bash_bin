@@ -139,10 +139,8 @@ while getopts "d:h:m:s:f:t:" opt; do
         s) seconds_between_transitions=${OPTARG};;
         f) i3_config_file="${HOME}/${OPTARG}";;
         t) num_transitions=${OPTARG};;
-        \?) echo "Invalid option: -${OPTARG}" >&2
-            usage ${0};;
-        :) echo "Option -${OPTARG} requires an argument!" >&2
-            usage ${0};;
+        \?) usage ${0};;
+        :) usage ${0};;
     esac
 done
 
