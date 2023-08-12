@@ -20,7 +20,7 @@ unset -v destination_dir
 unset -v username
 
 usage_message() {
-    echo -e "\nUsage: $0 -p <package file path> -d <destination directory> -u <username>\n"
+    echo -e "\nUsage: $1 -p <package file path> -d <destination directory> -u <username>\n"
     echo -e "\t-d --> The absolute path for the destination directory in which to install the package"
     echo -e "\t-h --> Print the usage message"
     echo -e "\t-p --> The path from \$HOME to the package file to install, e.g. Downloads/package.AppImage"
@@ -28,12 +28,12 @@ usage_message() {
 }
 
 usage_error() {
-    usage_message $0 >&2
+    usage_message $1 >&2
     exit 1
 }
 
 usage_info() {
-    usage_message $0
+    usage_message $1
     exit 0
 }
 

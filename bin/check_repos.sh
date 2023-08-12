@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Check if any local Git repos are outdated or have uncommitted/unstaged changes in a given 
+# Check if any local Git repos are outdated or have uncommitted/unstaged changes in a given
 # directory of Git repos.
 
 usage() {
-    echo "Usage: $0 -d <project directory>"
+    echo "Usage: $1 -d <project directory>"
 }
 
 unset -v project_dir
