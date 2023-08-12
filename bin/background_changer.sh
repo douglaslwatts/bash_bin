@@ -10,11 +10,11 @@
 # in the form:
 #               exec --no-startup-id feh --bg-scale /absolute/path/to/image_file
 #
-# and that the image specified in that command exists. If that is not the case either make it so or 
-# edit the needed grep | cut command in this script to match the feh command that is in the i3 
+# and that the image specified in that command exists. If that is not the case either make it so or
+# edit the needed grep | cut command in this script to match the feh command that is in the i3
 # config file
 #
-# NOTE: Most distros come with the commands used here, but make sure you have pgrep, feh, and 
+# NOTE: Most distros come with the commands used here, but make sure you have pgrep, feh, and
 #       ImageMagick for the convert command.
 #
 # NOTE: Creating the transition imgage files is VERY CPU intensive and the first time this script is
@@ -23,12 +23,12 @@
 #       interval before the transition can begin This will occur for any image(s) added later as
 #       well. An image added during runtime will be added to the current rotation. It will naturally
 #       take longer and be more CPU intensive for larger images, while for smaller images
-#       (under 500KiB) it is actually quite fast on my system. 
+#       (under 500KiB) it is actually quite fast on my system.
 #       Oh, and then there is storage. Currently, there are 9 pictures in my backgrounds directory.
 #       1 is under 500Kib, 1 is just under 1MiB, 5 are around 1.5Mib, 1 is 2.2MiB, and 1 is 4.1MiB
 #       This has made my background_transitions directory 138MiB. Not too crazy, but I imagine it may
 #       not be a great idea to use this on one's entire Pictures directory. Especially if there are
-#       thousands of Pictures in it. A random file from within the backgrounds directory will be 
+#       thousands of Pictures in it. A random file from within the backgrounds directory will be
 #       chosen recursively and if an empty directory is encountered, the default will be the image
 #       file which was specified in the i3 config file feh command originally. Background transition
 #       files are stored in $HOME/.background_transitions/, which will be created if it does not
@@ -54,12 +54,13 @@
 #                              a number less than 10 is specified, the default will be 10 and if a
 #                              number greater than 95 is specified, the default will be 95.
 #
-# Place the command in .bash_profile or .profile, whichever you use. Don't forget the '&' at the 
+# Place the command in .bash_profile, .profile, .zprofile, etc. Don't forget the '&' at the
 # end as the script runs a forever loop to do its job. If you do not you will need to switch to a
 # TTY and ctrl-c then add it to the command, which is what I did LOL the first time I ran it :)
 # Note the pgrep redirect to /dev/null returns empty so false if there is not a background_changer
 # already running from a previous login and non-empty so true otherwise. This prevents having
-# more than one instance running if you logout and back in.
+# more than one instance running if you logout and back in. If you startx manually, the same can
+# be placed in .xinitrc
 #
 # example:
 #           if [ "${XDG_CURRENT_DESKTOP}" = "i3" ]; then
@@ -207,7 +208,7 @@ elif [ ! -z "$seconds_between_transitions" ]; then
 fi
 
 # set the number of transition files
-    
+
 if [ -z "$num_transitions" ]; then
     readonly NUM_TRANSITIONS=65
 else

@@ -43,7 +43,7 @@ Optional flag:  -d -> A comma separated list of project dependencies for the pro
 # Shows a usage message and exits with status 1
 # Arg: $1 should be the name of the script
 show_error() {
-    usage $1
+    usage $1 >&2
     exit 1
 }
 

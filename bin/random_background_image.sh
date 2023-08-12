@@ -11,19 +11,20 @@
 # NOTE: The script assumes you have a feh command in i3 config file as below:
 #
 #       exec --no-startup-id feh --bg-scale /path/to/image_file
-#       
-#       and that the file specified in that command exists. If that is not the case make it so or 
+#
+#       and that the file specified in that command exists. If that is not the case make it so or
 #       change the value of the variable FEH_COMMAND in this script
 #
 # Example:
 #
-#   Place below in .bash_profile or .profile, whichever is relavent to you
+#   Place below in .bash_profile, .profile, .zprofile, etc. whichever is relavent to you. If you
+#   startx manually, the same can be placed in .xinitrc
 #
 #       if [ "${XDG_CURRENT_DESKTOP}" = "i3" ]; then
 #           ${HOME}/bin/random_background_image.sh -d Pictures/background_images &
 #       fi
 #
- 
+
 # Prints a usage message and exits
 # Arg: $1 should be the name of this file
 usage() {

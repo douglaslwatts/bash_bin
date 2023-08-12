@@ -12,9 +12,9 @@
 ####################################################################################################
 
 # Prints a usage message and exits.
-function usage() {
-    echo -e "Usage: $0 <fie|directory> [file|directory] ...\n" >&2
-    echo -ne "$0 accepts any number of file and/or directory arguments.\nThe current date" >&2
+usage() {
+    echo -e "Usage: $1 <fie|directory> [file|directory] ...\n" >&2
+    echo -ne "$1 accepts any number of file and/or directory arguments.\nThe current date" >&2
     echo -n " will be added between the filename and the file extension of all" >&2
     echo -e " file\narguments. This is done recursively for all directory arguments." >&2
     exit 1
@@ -27,7 +27,7 @@ function usage() {
 #         1 => no arg supplied
 #         2 => file is not a regular file
 #         3 => file does not have write permissions
-function add_date_to_file() {
+add_date_to_file() {
     [ $# -ne 1 ] && return 1
 
     if [ ! -f "$1" ]; then
@@ -39,7 +39,7 @@ function add_date_to_file() {
 
         # Get the file extension and path to the file. I still find it interesting that we can
         # nest double quotes within double quotes when using command substitution and it is
-        # absolutely neccessary here in the unfortunate case that some filenames have spaces in 
+        # absolutely neccessary here in the unfortunate case that some filenames have spaces in
         # them.
 
         extension="$(echo "$1" | xargs -I x basename x | grep -o "\..*")"
@@ -65,7 +65,7 @@ function add_date_to_file() {
 #         1 => no arg supplied
 #         2 => file or directory does not exist
 #         3 => file is not a regular file or a directory
-function add_date() {
+add_date() {
     [ $# -ne 1 ] && return 1
 
     if [ ! -e "$1" ]; then
@@ -75,7 +75,7 @@ function add_date() {
         echo "Error! $1 exists, but is not a directory or a regular file!" >&2
         return 3
     fi
-    
+
     if [ -f "$1" ]; then
         add_date_to_file "$1"
     elif [ -d "$1" ]; then
@@ -90,7 +90,7 @@ function add_date() {
     return 0
 }
 
-[ $# -lt 1 ] && usage
+[ $# -lt 1 ] && usage $0
 
 shopt -s nullglob
 

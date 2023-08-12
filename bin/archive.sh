@@ -12,7 +12,7 @@
 #               99 if invalid usage
 
 if [ $# -eq 0 ]; then
-    echo "Usage: archive.sh <dir> [dir ...]"
+    echo "Usage: $0 <dir> [dir ...]"
     exit 99
 fi
 
